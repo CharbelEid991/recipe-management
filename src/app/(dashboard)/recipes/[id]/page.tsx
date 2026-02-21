@@ -1,6 +1,6 @@
 "use client";
 
-import { use } from "react";
+import { use, Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -17,8 +17,7 @@ import { useRecipe, useDeleteRecipe } from "@/hooks/use-recipes";
 import { useUser } from "@/hooks/use-user";
 import { formatTime, capitalize } from "@/lib/utils";
 
-export default function RecipeDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
+function RecipeDetailContent({ id }: { id: string }) {
   const { data: recipe, isLoading } = useRecipe(id);
   const { user } = useUser();
   const deleteRecipe = useDeleteRecipe();
@@ -155,5 +154,22 @@ export default function RecipeDetailPage({ params }: { params: Promise<{ id: str
         </ol>
       </div>
     </div>
+  );
+}
+
+export default function RecipeDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
+  
+  return (
+    <Suspense fallback={
+      <div className="max-w-3xl space-y-4">
+        <Skeleton className="h-8 w-64" />
+        <Skeleton className="h-64 w-full rounded-xl" />
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-3/4" />
+      </div>
+    }>
+      <RecipeDetailContent id={id} />
+    </Suspense>
   );
 }

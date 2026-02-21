@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RecipeForm } from "@/components/recipes/recipe-form";
 import { AIGenerator } from "@/components/ai/ai-generator";
 import type { CreateRecipeInput } from "@/types";
 
-export default function NewRecipePage() {
+function NewRecipeContent() {
   const searchParams = useSearchParams();
   const defaultTab = searchParams.get("ai") === "true" ? "ai" : "manual";
   const [aiDefaults, setAiDefaults] = useState<Partial<CreateRecipeInput> | undefined>();
@@ -38,5 +38,13 @@ export default function NewRecipePage() {
         </TabsContent>
       </Tabs>
     </div>
+  );
+}
+
+export default function NewRecipePage() {
+  return (
+    <Suspense fallback={<div className="space-y-6"><h1 className="text-2xl font-bold">New Recipe</h1><div>Loading...</div></div>}>
+      <NewRecipeContent />
+    </Suspense>
   );
 }
