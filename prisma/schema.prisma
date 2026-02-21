@@ -1,0 +1,82 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  avatarUrl String?  @map("avatar_url")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  recipes       Recipe[]
+  sharedByMe    SharedRecipe[] @relation("SharedByUser")
+  sharedWithMe  SharedRecipe[] @relation("SharedWithUser")
+  mealPlans     MealPlan[]
+
+  @@map("users")
+}
+
+model Recipe {
+  id           String       @id @default(uuid())
+  title        String
+  description  String?
+  ingredients  Json
+  instructions Json
+  category     String       @default("other")
+  difficulty   String       @default("medium")
+  prepTime     Int          @default(0) @map("prep_time")
+  cookTime     Int          @default(0) @map("cook_time")
+  servings     Int          @default(4)
+  imageUrl     String?      @map("image_url")
+  status       String       @default("to_try")
+  isPublic     Boolean      @default(false) @map("is_public")
+  tags         Json         @default("[]")
+  authorId     String       @map("author_id")
+  author       User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+
+  sharedRecipes SharedRecipe[]
+
+  @@map("recipes")
+}
+
+model SharedRecipe {
+  id          String   @id @default(uuid())
+  recipeId    String   @map("recipe_id")
+  recipe      Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  sharedById  String   @map("shared_by_id")
+  sharedBy    User     @relation("SharedByUser", fields: [sharedById], references: [id], onDelete: Cascade)
+  sharedWithId String  @map("shared_with_id")
+  sharedWith  User     @relation("SharedWithUser", fields: [sharedWithId], references: [id], onDelete: Cascade)
+  canEdit     Boolean  @default(false) @map("can_edit")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@unique([recipeId, sharedWithId])
+  @@map("shared_recipes")
+}
+
+model MealPlan {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  week      String
+  monday    String?
+  tuesday   String?
+  wednesday String?
+  thursday  String?
+  friday    String?
+  saturday  String?
+  sunday    String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([userId, week])
+  @@map("meal_plans")
+}
