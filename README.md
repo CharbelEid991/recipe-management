@@ -2,6 +2,8 @@
 
 A full-stack recipe management app built with Next.js 14, Supabase Auth, Prisma ORM, and Claude AI.
 
+🌐 **Live Demo:** [https://recipe-management-henna.vercel.app/](https://recipe-management-henna.vercel.app/)
+
 ## Features
 
 ### Core Recipe Management
